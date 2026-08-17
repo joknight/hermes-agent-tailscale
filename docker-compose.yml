@@ -31,7 +31,7 @@ services:
 
   hermes:
     image: nousresearch/hermes-agent:latest
-    container_name: hermes-new
+    container_name: hermes
     restart: unless-stopped
 
     network_mode: service:tailscale
@@ -41,7 +41,7 @@ services:
         condition: service_healthy
 
     volumes:
-      - ${HERMES_DATA_DIR:-./hermes-data}:/opt/data
+      - ${HERMES_DATA_DIR:-./.hermes}:/opt/data
 
     environment:
       HERMES_UID: ${HERMES_UID:-10000}

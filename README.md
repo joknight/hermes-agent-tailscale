@@ -4,9 +4,9 @@ This deployment runs Hermes Agent and Tailscale together. Hermes shares the Tail
 
 ## Files and storage
 
-- `hermes-data/` — persistent Hermes state, mounted at `/opt/data`.
+- `.hermes/` — persistent Hermes state, mounted at `/opt/data`.
 - `tailscale-state` Docker volume — persistent Tailscale identity/state.
-- The Hermes dashboard listens inside the shared network namespace on `127.0.0.1:9119`.
+- The Hermes dashboard listens inside the shared network namespace on `0.0.0.0:9119`.
 - Tailscale Serve publishes that dashboard on the tailnet over HTTPS.
 
 Do not commit `.env` or an auth key.
@@ -100,7 +100,7 @@ https://hermes.tailxxxx.ts.net/
 
 - Tailscale authentication is kept in `.env`; the key is not embedded in the Compose file.
 - Dashboard credentials and the session secret are kept in `.env`; do not commit them.
-- Hermes state is kept in `hermes-data/`; back it up.
+- Hermes state is kept in `.hermes/`; back it up.
 - This file does not mount `/var/run/docker.sock`, so Hermes cannot control the Docker host.
 - Tailscale Serve is used instead of publishing `9119` to all host interfaces.
 - The host Docker service must itself be enabled at boot for `restart: unless-stopped` to take effect after a reboot.
