@@ -4,50 +4,58 @@ services:
     container_name: hermes-tailscale
     hostname: hermes
     restart: unless-stopped
+
     environment:
       TS_AUTHKEY: ${TS_AUTHKEY:?Set TS_AUTHKEY in .env}
       TS_HOSTNAME: hermes
       TS_STATE_DIR: /var/lib/tailscale
+      TS_AUTH_ONCE: "true"
+      TS_USERSPACE: "false"
+
     volumes:
       - tailscale-state:/var/lib/tailscale
+
+    devices:
+      - /dev/net/tun:/dev/net/tun
+
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
-    devices:
-      - /dev/net/tun:/dev/net/tun
-    command:
-      - /bin/sh
-      - -ec
-      - |
-        tailscaled --state=/var/lib/tailscale/tailscaled.state &
-        daemon_pid=$$!
-        trap 'kill "$$daemon_pid" 2>/dev/null || true' TERM INT EXIT
-        until tailscale --socket=/var/run/tailscale/tailscaled.sock status >/dev/null 2>&1; do
-          sleep 1
-        done
-        tailscale up --auth-key="$$TS_AUTHKEY" --hostname="$$TS_HOSTNAME"
-        tailscale serve --bg http://127.0.0.1:9119
-        wait "$$daemon_pid"
+
     healthcheck:
-      test: ["CMD", "tailscale", "status"]
+      test: ["CMD", "tailscale", "status", "--peers=false"]
       interval: 10s
       timeout: 5s
       retries: 12
+      start_period: 20s
 
   hermes:
     image: nousresearch/hermes-agent:latest
-    container_name: hermes
+    container_name: hermes-new
     restart: unless-stopped
+
     network_mode: service:tailscale
+
     depends_on:
       tailscale:
         condition: service_healthy
+
     volumes:
       - ${HERMES_DATA_DIR:-./hermes-data}:/opt/data
+
     environment:
       HERMES_UID: ${HERMES_UID:-10000}
       HERMES_GID: ${HERMES_GID:-10000}
       HERMES_HOME: /opt/data
+
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: 0.0.0.0
+      HERMES_DASHBOARD_PORT: "9119"
+
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: ${HERMES_DASHBOARD_BASIC_AUTH_USERNAME:?Set dashboard username in .env}
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: ${HERMES_DASHBOARD_BASIC_AUTH_PASSWORD:?Set dashboard password in .env}
+      HERMES_DASHBOARD_BASIC_AUTH_SECRET: ${HERMES_DASHBOARD_BASIC_AUTH_SECRET:?Set dashboard secret in .env}
+
     command: ["gateway", "run"]
 
 volumes:
