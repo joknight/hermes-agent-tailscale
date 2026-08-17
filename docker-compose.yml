@@ -35,10 +35,7 @@ services:
       retries: 12
 
   hermes:
-    build:
-      context: /opt/hermes
-      dockerfile: Dockerfile
-    image: hermes-agent-local
+    image: ghcr.io/nousresearch/hermes-agent:latest
     container_name: hermes
     restart: unless-stopped
     network_mode: service:tailscale

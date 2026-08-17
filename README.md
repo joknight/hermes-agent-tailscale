@@ -31,10 +31,10 @@ Do not commit `.env` or an auth key.
    test -e /dev/net/tun
    ```
 
-4. Build and start:
+4. Pull and start:
 
    ```bash
-   docker compose up -d --build
+   docker compose up -d
    ```
 
 5. Check both services:
@@ -68,7 +68,6 @@ docker compose exec tailscale tailscale serve status
 ## Updating
 
 ```bash
-docker compose pull tailscale
-docker compose build hermes
+docker compose pull
 docker compose up -d
 ```
