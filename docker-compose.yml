@@ -35,7 +35,7 @@ services:
       retries: 12
 
   hermes:
-    image: ghcr.io/nousresearch/hermes-agent:latest
+    image: nousresearch/hermes-agent:latest
     container_name: hermes
     restart: unless-stopped
     network_mode: service:tailscale
